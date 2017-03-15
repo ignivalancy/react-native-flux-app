@@ -1,19 +1,40 @@
 import { EventEmitter } from "events";
-
 import dispatcher from "../dispatcher";
 
 class TodoStore extends EventEmitter {
+
     constructor() {
         super();
+
         this.todos = [{
             id: 113464613,
-            text: "Go Shopping",
-            complete: false
+            text: "Introduction",
+            complete: true
         }, {
             id: 235684679,
-            text: "Pay Water Bill",
+            text: "Flux Demo",
             complete: false
-        }, ];
+        }, {
+            id: 235684676,
+            text: "Redux Demo",
+            complete: false
+        }, {
+            id: 235688679,
+            text: "Redux Middleware's",
+            complete: false
+        }, {
+            id: 235684179,
+            text: "React Flux Router",
+            complete: false
+        }, {
+            id: 235084169,
+            text: "Redux - Thunk, Saga, Promise",
+            complete: false
+        }, {
+            id: 235684109,
+            text: "Redux Persist",
+            complete: false
+        }];
     }
 
     createTodo(text) {
@@ -24,6 +45,15 @@ class TodoStore extends EventEmitter {
             text,
             complete: false,
         });
+
+        this.emit("change");
+    }
+
+    toggleTodo(tid) {
+
+        this.todos = this.todos.map(({ id, text, complete }) =>
+            tid === id ? { id, text, complete: !complete } : { id, text, complete }
+        )
 
         this.emit("change");
     }
@@ -39,6 +69,11 @@ class TodoStore extends EventEmitter {
                     this.createTodo(action.text);
                     break;
                 }
+            case "TOGGLE_TODO":
+                {
+                    this.toggleTodo(action.id);
+                    break;
+                }
             case "RECEIVE_TODOS":
                 {
                     this.todos = action.todos;
@@ -51,6 +86,7 @@ class TodoStore extends EventEmitter {
 }
 
 const todoStore = new TodoStore;
+
 dispatcher.register(todoStore.handleActions.bind(todoStore));
 
 export default todoStore;

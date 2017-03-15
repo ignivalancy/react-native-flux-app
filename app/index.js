@@ -3,9 +3,12 @@ import {
   StyleSheet,
   Text,
   View,
-  ScrollView
+  ScrollView,
+  TouchableOpacity,
+  AlertIOS
 } from 'react-native';
 import TodoStore from "./stores/TodoStore";
+import * as TodoActions from "./actions/TodoActions";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default class Main extends Component {
@@ -13,6 +16,9 @@ export default class Main extends Component {
   constructor() {
     super();
     this.getTodos = this.getTodos.bind(this);
+    // this.reloadTodos = this.reloadTodos.bind(this);
+    // this.createTodo = this.createTodo.bind(this);
+    // this.toggleTodo = this.toggleTodo.bind(this);
     this.state = {
       todos: TodoStore.getAll(),
     };
@@ -36,6 +42,18 @@ export default class Main extends Component {
     TodoActions.reloadTodos();
   }
 
+  createTodo() {
+    AlertIOS.prompt(
+      'Add new Task',
+      'Save your next task in the list',
+      text => TodoActions.createTodo(text)
+    );
+  }
+
+  toggleTodo(id) {
+    TodoActions.toggleTodo(id);
+  }
+
   render() {
 
     const { todos } = this.state;
@@ -45,24 +63,30 @@ export default class Main extends Component {
           <Text style={styles.title}>
             Flux App
           </Text>
-          <Icon name="reload" size={25} color="#7d92da" />
-          <Icon name="plus" size={25} color="#7d92da" />
+          <TouchableOpacity onPress={this.reloadTodos}>
+            <Icon name="reload" size={25} color="#7d92da" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={this.createTodo}>
+            <Icon name="plus" size={25} color="#7d92da" />
+          </TouchableOpacity>
         </View>
         <ScrollView>
-          {todos.map(this._renderItemComponent)}
+          {todos.map(this.renderItemComponent.bind(this))}
         </ScrollView>
       </View>
     );
   }
 
-  _renderItemComponent( { id, text, complete } ){
-    const checkbox = complete ? 'checkbox-multiple-blank-circle-outline' : 'checkbox-multiple-marked-circle-outline'; 
+  renderItemComponent( { id, text, complete } ){
+    const checkbox = complete ? 'checkbox-multiple-marked-circle-outline' : 'checkbox-multiple-blank-circle-outline'; 
     return (
-      <View style={styles.taskBox}>
+      <View style={styles.taskBox} key={id}>
         <Text style={styles.taskText}>
           {text}
         </Text>
-        <Icon name={checkbox} size={20} color="#cc0000" />
+        <TouchableOpacity onPress={this.toggleTodo.bind(this, id)}>
+          <Icon name={checkbox} size={20} color="#cc0000" />
+        </TouchableOpacity>
       </View>
     );
   };
